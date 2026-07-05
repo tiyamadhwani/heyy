@@ -3,15 +3,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def _fix_db_url(url):
+    """
+    Fix the DB URL for the driver we are using:
+    - Heroku/Neon/Render give  postgres://   → change to postgresql+pg8000://
+    - Standard                 postgresql://  → change to postgresql+pg8000://
+    - SQLite stays as-is (local dev only)
+    pg8000 is a pure-Python driver — no C compilation, always works on Vercel.
+    """
     if not url:
-        return "sqlite:///jhd_hotel.db"
-
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
-
-    if url.startswith("postgresql://") and "+psycopg" not in url:
-        url = url.replace("postgresql://", "postgresql+psycopg://", 1)
-
+        return 'sqlite:///jhd_hotel.db'
+    if url.startswith('postgres://'):
+        url = url.replace('postgres://', 'postgresql://', 1)
+    if url.startswith('postgresql://') and '+pg8000' not in url:
+        url = url.replace('postgresql://', 'postgresql+pg8000://', 1)
     return url
 
 
@@ -64,12 +68,10 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SESSION_COOKIE_SECURE = True
-    WTF_CSRF_TIME_LIMIT = 3600
+    WTF_CSRF_TIME_LIMIT   = 3600
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,
         'pool_recycle':  300,
-        'pool_size':     1,
-        'max_overflow':  2,
     }
 
 

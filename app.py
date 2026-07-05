@@ -148,10 +148,12 @@ def capture_paypal_order(order_id):
 # ─── Main Routes ─────────────────────────────────────────────
 @app.route('/')
 def index():
-    hotel = Hotel.query.first()
-    # Show today's live prices for both room types on the homepage
-    today_price, today_peak = get_price_for_date(date.today(), 'Normal')
-    today_price_sd, _       = get_price_for_date(date.today(), 'Super Deluxe')
+    try:
+        hotel = Hotel.query.first()
+    except Exception:
+        hotel = None
+    today_price, _  = get_price_for_date(date.today(), 'Normal')
+    today_price_sd, _ = get_price_for_date(date.today(), 'Super Deluxe')
     return render_template('index.html', hotel=hotel,
         today_price=today_price, today_price_sd=today_price_sd)
 
@@ -171,8 +173,12 @@ def reviews_page():
 # ─── Search / Rooms ──────────────────────────────────────────
 @app.route('/search')
 def search():
-    hotel     = Hotel.query.first()
-    rooms     = Room.query.filter_by(is_available=True).order_by(Room.room_type, Room.room_number).all() if hotel else []
+    try:
+        hotel = Hotel.query.first()
+        rooms = Room.query.filter_by(is_available=True).order_by(Room.room_type, Room.room_number).all() if hotel else []
+    except Exception:
+        hotel = None
+        rooms = []
     check_in  = request.args.get('check_in', '')
     check_out = request.args.get('check_out', '')
     adults    = request.args.get('adults', '2')
@@ -187,7 +193,6 @@ def search():
     except ValueError:
         price_date = date.today()
 
-    # Live price per room type for the chosen date
     normal_price, is_peak = get_price_for_date(price_date, 'Normal')
     sd_price, _            = get_price_for_date(price_date, 'Super Deluxe')
 
@@ -446,14 +451,18 @@ def admin_login():
 @app.route('/admin')
 @admin_required
 def admin_dashboard():
-    bookings = Booking.query.order_by(Booking.created_at.desc()).limit(20).all()
-    total_rev = db.session.query(db.func.sum(Booking.total_amount)).filter_by(status=BookingStatus.CONFIRMED).scalar() or 0
+    try:
+        bookings  = Booking.query.order_by(Booking.created_at.desc()).limit(20).all()
+        total_rev = db.session.query(db.func.sum(Booking.total_amount)).filter_by(status=BookingStatus.CONFIRMED).scalar() or 0
+        total_rooms  = Room.query.count()
+        total_guests = Guest.query.count()
+    except Exception:
+        bookings = []; total_rev = 0; total_rooms = 0; total_guests = 0
     today_price, today_peak = get_price_for_date(date.today(), 'Normal')
     today_price_sd, _       = get_price_for_date(date.today(), 'Super Deluxe')
     return render_template('admin_dashboard.html',
         bookings=bookings, total_rev=total_rev,
-        total_rooms=Room.query.count(),
-        total_guests=Guest.query.count(),
+        total_rooms=total_rooms, total_guests=total_guests,
         today_price=today_price, today_price_sd=today_price_sd, today_peak=today_peak)
 
 @app.route('/admin/bookings')
