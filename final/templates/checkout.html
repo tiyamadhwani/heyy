@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Checkout — JHD Hotel & Bar{% endblock %}
+{% block extra_css %}
+<style>
+.checkout-page { background: var(--off-white); min-height: 100vh; padding: 3rem 0 5rem; }
+.checkout-header { text-align: center; margin-bottom: 2.5rem; }
+.checkout-header .eyebrow { font-size:.72rem; letter-spacing:.25em; text-transform:uppercase; color:var(--rose-deep); display:block; margin-bottom:.5rem; }
+.checkout-header h1 { font-size: clamp(1.8rem,3vw,2.8rem); font-weight: 300; }
+.checkout-grid { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; align-items: start; }
+.order-summary { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); position: sticky; top: 88px; }
+.os-header { background: linear-gradient(135deg, var(--rose), var(--lavender)); padding: 1.5rem; border-bottom: 1px solid var(--border); }
+.os-header h3 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; }
+.os-body { padding: 1.5rem; }
+.os-room-name { font-family: var(--font-display); font-size: 1.5rem; color: var(--rose-deep); margin-bottom: .25rem; }
+.os-row { display: flex; justify-content: space-between; padding: .5rem 0; font-size: .9rem; color: var(--text-mid); border-bottom: 1px solid var(--border-soft); }
+.os-row:last-of-type { border-bottom: none; }
+.os-row.total { font-weight: 600; color: var(--text-dark); font-size: 1rem; padding-top: .75rem; margin-top:.25rem; border-top: 2px solid var(--border); }
+.os-row.total .amount { font-family: var(--font-display); font-size: 1.5rem; color: var(--rose-deep); }
+.gst-note { font-size:.75rem; color:var(--text-muted); margin-top:.5rem; padding:.5rem; background:var(--cream); border-radius:var(--radius-sm); }
+.payment-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm); }
+.payment-section h2 { font-family:var(--font-display); font-size:1.5rem; font-weight:300; margin-bottom:1.5rem; }
+.pay-tabs { display: flex; gap: .5rem; margin-bottom: 1.75rem; flex-wrap:wrap; }
+.pay-tab { flex: 1; min-width:120px; padding: .85rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--off-white); cursor: pointer; text-align: center; font-family: var(--font-body); font-size:.85rem; font-weight:500; color:var(--text-mid); }
+.pay-tab.active { border-color: var(--rose-deep); background: var(--rose); color: var(--rose-deep); }
+.pay-tab i { display: block; font-size: 1.3rem; margin-bottom: .25rem; }
+.pay-panel { display: none; }
+.pay-panel.active { display: block; }
+#paypal-button-container { min-height: 50px; }
+.paypal-info { font-size:.82rem; color:var(--text-soft); margin-top:.75rem; text-align:center; }
+.btn-razorpay { width: 100%; padding: 14px; background: #528FF0; color: white; border: none; border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 1rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .5rem; }
+.btn-razorpay:hover { background: #3a7bd5; }
+.security-badges { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-soft); flex-wrap: wrap; }
+.sec-badge { display: flex; align-items: center; gap: .35rem; font-size: .75rem; color: var(--text-muted); }
+.sec-badge i { color: #4caf50; }
+.booking-recap { background: var(--cream); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.recap-row { display: flex; justify-content: space-between; font-size: .87rem; padding: .3rem 0; color: var(--text-mid); }
+.recap-row strong { color: var(--text-dark); }
+.fallback-notice { background: var(--jasmine); border: 1px solid var(--jasmine-mid); border-radius: var(--radius-sm); padding: 1.25rem; text-align: center; color: var(--text-mid); font-size: .88rem; }
+@media(max-width:860px){ .checkout-grid{grid-template-columns:1fr;} .order-summary{position:static;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+  <div class="container">
+    <div class="checkout-header">
+      <span class="eyebrow">✦ Secure Checkout</span>
+      <h1>Complete Your <em style="color:var(--rose-deep)">Booking</em></h1>
+    </div>
+
+    <div class="checkout-grid">
+      <div>
+        <div class="payment-section" style="margin-bottom:1.5rem;">
+          <h2>Booking Summary</h2>
+          <div class="booking-recap">
+            <div class="recap-row"><span>Room</span><strong>{{ booking.room_type }} Room {{ booking.room.room_number }}</strong></div>
+            <div class="recap-row"><span>Guest</span><strong>{{ booking.guest.first_name }} {{ booking.guest.last_name }}</strong></div>
+            <div class="recap-row"><span>Check-in</span><strong>{{ booking.check_in_date.strftime('%d %b %Y') }}</strong></div>
+            <div class="recap-row"><span>Check-out</span><strong>{{ booking.check_out_date.strftime('%d %b %Y') }}</strong></div>
+            <div class="recap-row"><span>Nights</span><strong>{{ booking.num_nights }}</strong></div>
+            <div class="recap-row"><span>Guests</span><strong>{{ booking.num_adults }} Adults{% if booking.num_children > 0 %}, {{ booking.num_children }} Children{% endif %}</strong></div>
+            <div class="recap-row"><span>Extra Bed</span><strong>{{ 'Yes' if booking.extra_bed else 'No' }}</strong></div>
+            <div class="recap-row"><span>Rate Applied</span><strong>{{ 'Peak Season' if booking.is_peak_season else 'Normal' }} — ₹{{ "{:,.0f}".format(booking.price_per_night) }}/night</strong></div>
+          </div>
+        </div>
+
+        <div class="payment-section">
+          <h2>Choose Payment Method</h2>
+
+          <div class="pay-tabs">
+            <button class="pay-tab active" onclick="showTab('paypal', this)">
+              <i class="fab fa-paypal" style="color:#003087"></i> PayPal
+            </button>
+            <button class="pay-tab" onclick="showTab('razorpay', this)">
+              <i class="fas fa-credit-card" style="color:#528FF0"></i> Card / UPI
+            </button>
+            <button class="pay-tab" onclick="showTab('whatsapp', this)">
+              <i class="fab fa-whatsapp" style="color:#25D366"></i> WhatsApp
+            </button>
+          </div>
+
+          <div class="pay-panel active" id="panel-paypal">
+            {% if paypal_client_id %}
+              <div id="paypal-button-container"></div>
+              <p class="paypal-info"><i class="fas fa-lock" style="color:#4caf50"></i> Secure payment via PayPal.</p>
+            {% else %}
+              <div class="fallback-notice">
+                <i class="fab fa-paypal" style="color:#003087;font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>
+                PayPal is not yet configured. Please use Card/UPI or WhatsApp to complete your booking.
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="pay-panel" id="panel-razorpay">
+            {% if razorpay_key_id %}
+              <button class="btn-razorpay" id="btnRazorpay" onclick="payWithRazorpay()">
+                <i class="fas fa-credit-card"></i> Pay ₹{{ "%.0f"|format(booking.total_amount) }} via Card / UPI / NetBanking
+              </button>
+            {% else %}
+              <div class="fallback-notice">Razorpay is not yet configured. Please use PayPal or WhatsApp to complete your booking.</div>
+            {% endif %}
+          </div>
+
+          <div class="pay-panel" id="panel-whatsapp">
+            <div style="background:var(--rose);border-radius:var(--radius-sm);padding:1.5rem;text-align:center;">
+              <p style="margin-bottom:1rem;color:var(--text-mid);font-size:.9rem;">Prefer to confirm directly? WhatsApp us your booking reference and we'll confirm manually.</p>
+              <div style="background:var(--white);border-radius:var(--radius-sm);padding:.75rem;margin-bottom:1rem;font-size:.85rem;color:var(--text-soft);">
+                <strong>Booking Ref:</strong> {{ booking.booking_reference }}<br>
+                <strong>Amount:</strong> ₹{{ "%.0f"|format(booking.total_amount) }}
+              </div>
+              <a href="https://wa.me/{{ hotel_whatsapp }}?text=Hi, I'd like to confirm my booking {{ booking.booking_reference }} at JHD Hotel. Total: ₹{{ '%.0f'|format(booking.total_amount) }}"
+                 class="btn btn-primary" target="_blank" style="width:100%;justify-content:center;">
+                <i class="fab fa-whatsapp"></i> Confirm on WhatsApp
+              </a>
+            </div>
+          </div>
+
+          <div class="security-badges">
+            <span class="sec-badge"><i class="fas fa-shield-alt"></i> SSL Secured</span>
+            <span class="sec-badge"><i class="fas fa-lock"></i> Encrypted</span>
+            <span class="sec-badge"><i class="fas fa-check-circle"></i> GST: {{ gst_number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-summary">
+        <div class="os-header"><h3>Price Breakdown</h3></div>
+        <div class="os-body">
+          <div class="os-room-name">{{ booking.room_type }} Room {{ booking.room.room_number }}</div>
+          <div class="os-row"><span>Room Rate</span><span>₹{{ "%.0f"|format(booking.price_per_night) }}/night</span></div>
+          <div class="os-row"><span>Nights</span><span>× {{ booking.num_nights }}</span></div>
+          <div class="os-row"><span>Subtotal</span><span>₹{{ "%.0f"|format(booking.subtotal) }}</span></div>
+          <div class="os-row"><span>GST (12%)</span><span>₹{{ "%.0f"|format(booking.gst_amount) }}</span></div>
+          <div class="os-row total"><span>Total</span><span class="amount">₹{{ "%.0f"|format(booking.total_amount) }}</span></div>
+          <div class="gst-note">
+            <strong>GST No:</strong> {{ gst_number }}<br>
+            <strong>Legal Name:</strong> JHD Hotel<br>
+            <strong>Trade Name:</strong> JHD Hotel · Partnership<br>
+            This is a valid GST invoice.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if paypal_client_id %}
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=INR"></script>
+<script>
+paypal.Buttons({
+  createOrder: async () => {
+    const res = await fetch('/api/create-paypal-order', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({booking_id: '{{ booking.id }}'})
+    });
+    const data = await res.json();
+    if(!data.success) { alert('Could not start PayPal: ' + data.error); throw new Error(data.error); }
+    return data.order_id;
+  },
+  onApprove: async (data) => {
+    const res = await fetch('/api/capture-paypal-order', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({order_id: data.orderID, booking_id: '{{ booking.id }}'})
+    });
+    const result = await res.json();
+    if(result.success) window.location.href = '/confirmation/' + result.reference;
+    else alert('Payment issue: ' + result.error + '. Please try WhatsApp booking instead.');
+  },
+  onError: () => { alert('Payment failed. Please try again or use WhatsApp booking.'); },
+  style: { layout:'vertical', color:'blue', shape:'rect', label:'pay' }
+}).render('#paypal-button-container');
+</script>
+{% endif %}
+
+{% if razorpay_key_id %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+async function payWithRazorpay() {
+  const res = await fetch('/api/create-razorpay-order', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({booking_id:'{{ booking.id }}'})
+  });
+  const data = await res.json();
+  if(!data.success){ alert('Error: '+data.error); return; }
+  const options = {
+    key: '{{ razorpay_key_id }}', amount: data.amount, currency: 'INR',
+    name: 'JHD Hotel & Bar', description: 'Room Booking — {{ booking.booking_reference }}',
+    order_id: data.order_id,
+    handler: async (response) => {
+      const verify = await fetch('/api/verify-razorpay-payment', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(response)
+      });
+      const vd = await verify.json();
+      if(vd.success) window.location.href = '/confirmation/' + vd.reference;
+      else alert('Verification failed. Contact us at {{ hotel_phone }}');
+    },
+    prefill: { name:  '{{ booking.guest.first_name }} {{ booking.guest.last_name }}', email: '{{ booking.guest.email }}', contact: '{{ booking.guest.phone }}' },
+    theme: { color: '#C0627A' }
+  };
+  new Razorpay(options).open();
+}
+</script>
+{% endif %}
+
+<script>
+function showTab(name, el) {
+  document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+</script>
+{% endblock %}

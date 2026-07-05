@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block title %}JHD Hotel & Bar — Premium Rooms in Udaipur{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-deco-ring"></div><div class="hero-deco-ring"></div><div class="hero-deco-ring"></div>
+  <div class="petals-wrap">
+    <span class="petal">🌸</span><span class="petal">🌺</span><span class="petal">🌹</span><span class="petal">🌼</span>
+    <span class="petal">🌸</span><span class="petal">🌷</span><span class="petal">🌺</span><span class="petal">🌸</span>
+  </div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">✦ Udaipur's Premium Stay ✦</span>
+    <h1 class="hero-title">JHD Hotel<br><em>&amp; Bar</em></h1>
+    <p class="hero-subtitle">Comfort, warmth, and great hospitality in the City of Lakes</p>
+    <p class="hero-location"><i class="fas fa-map-marker-alt"></i> New Bhopalpura, Udaipur, Rajasthan</p>
+
+    <!-- Live current price -->
+    <div style="margin-bottom:1.75rem;">
+      <span class="live-price-badge">
+        <span class="lp-amount">₹{{ "{:,.0f}".format(today_price) }}</span>
+        <span class="lp-label">/ night today</span>
+      </span>
+    </div>
+
+    <div class="hero-actions">
+      <div class="pulse-wrap">
+        <a href="{{ url_for('search') }}" class="btn btn-primary"><i class="fas fa-bed"></i> Book Your Room</a>
+      </div>
+      <a href="https://wa.me/918619882284?text=Hi, I'd like to enquire about rooms at JHD Hotel." class="btn btn-white" target="_blank">
+        <i class="fab fa-whatsapp" style="color:#25D366"></i> WhatsApp Enquiry
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">33</div><div class="label">Rooms</div></div>
+      <div class="hero-stat"><div class="num">22</div><div class="label">Normal</div></div>
+      <div class="hero-stat"><div class="num">11</div><div class="label">Super Deluxe</div></div>
+      <div class="hero-stat"><div class="num">★ 4.8</div><div class="label">Rating</div></div>
+    </div>
+  </div>
+  <div class="hero-scroll"><span class="arrow">↓</span>scroll</div>
+</section>
+
+<!-- Booking Bar -->
+<div class="container" id="booking-bar" style="padding-top:2.5rem;padding-bottom:1rem;">
+  <div class="booking-bar reveal">
+    <form class="booking-bar-form" action="{{ url_for('search') }}" method="GET">
+      <div class="form-group">
+        <label><i class="fas fa-calendar-check" style="color:var(--rose-deep)"></i> Check-in</label>
+        <input type="date" name="check_in" id="barCheckin" required>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-calendar-times" style="color:var(--rose-deep)"></i> Check-out</label>
+        <input type="date" name="check_out" id="barCheckout" required>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-user" style="color:var(--rose-deep)"></i> Adults</label>
+        <select name="adults">
+          <option value="1">1 Adult</option><option value="2" selected>2 Adults</option>
+          <option value="3">3 Adults</option><option value="4">4 Adults</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-child" style="color:var(--rose-deep)"></i> Children</label>
+        <select name="children">
+          <option value="0" selected>No Children</option><option value="1">1 Child</option>
+          <option value="2">2 Children</option><option value="3">3 Children</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Check</button>
+    </form>
+  </div>
+</div>
+
+<!-- About -->
+<section class="about-strip">
+  <div class="container">
+    <div class="about-inner">
+      <div class="about-img-frame reveal-left">
+        <img src="/static/images/hotel-lobby.jpg" alt="JHD Hotel Lobby" style="width:100%;height:480px;object-fit:cover;border-radius:24px;">
+      </div>
+      <div class="about-text reveal-right">
+        <span class="eyebrow">✦ Welcome to JHD</span>
+        <h2>Your Home in the <em>City of Lakes</em></h2>
+        <p>Nestled in New Bhopalpura, Udaipur, JHD Hotel &amp; Bar offers 33 rooms across two categories — 22 Normal Rooms and 11 Super Deluxe Rooms — each designed for comfort and convenience.</p>
+        <p>From our Skybar to our pure vegetarian kitchen, every corner of JHD is crafted for a relaxing, memorable stay.</p>
+        <div class="about-features">
+          <div class="about-feature"><i class="fas fa-check"></i> 22 Normal + 11 Super Deluxe</div>
+          <div class="about-feature"><i class="fas fa-check"></i> Free WiFi &amp; AC</div>
+          <div class="about-feature"><i class="fas fa-check"></i> Skybar</div>
+          <div class="about-feature"><i class="fas fa-check"></i> Welcome Snacks Included</div>
+          <div class="about-feature"><i class="fas fa-check"></i> 24/7 Electricity</div>
+          <div class="about-feature"><i class="fas fa-check"></i> Extra Bed Available</div>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <a href="{{ url_for('search') }}" class="btn btn-primary">Explore Rooms</a>
+          <a href="{{ url_for('about_page') }}" class="btn btn-outline">Our Story</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Rooms — Normal + Super Deluxe -->
+<section class="rooms-section" id="rooms">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="eyebrow">✦ Our Rooms</span>
+      <h2>Choose Your <em>Room Type</em></h2>
+      <p>33 rooms across two categories — comfortable, clean, and fully equipped</p>
+    </div>
+    <div class="room-type-grid">
+
+      <!-- Normal Room -->
+      <div class="room-type-card reveal delay-1">
+        <div class="room-type-img">
+          <img src="/static/images/rooms/normal-1.jpg" alt="Normal Room" style="width:100%;height:100%;object-fit:cover;">
+          <span class="room-type-badge">22 Rooms Available</span>
+        </div>
+        <div class="room-type-body">
+          <h3>Normal Room</h3>
+          <p>Comfortable, air-conditioned rooms with everything you need for a relaxing stay in Udaipur.</p>
+          <div class="rt-chips">
+            <span class="amenity-chip"><i class="fas fa-wifi"></i> WiFi</span>
+            <span class="amenity-chip"><i class="fas fa-snowflake"></i> AC</span>
+            <span class="amenity-chip"><i class="fas fa-tv"></i> TV</span>
+            <span class="amenity-chip"><i class="fas fa-cookie-bite"></i> Snacks</span>
+          </div>
+          <div class="rt-price-row">
+            <div>
+              <span class="rt-price-label">From</span>
+              <span class="rt-price">₹{{ "{:,.0f}".format(today_price) }}<small>/night</small></span>
+            </div>
+            <a href="{{ url_for('search') }}?room_type=Normal" class="btn btn-primary">View Rooms</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Super Deluxe Room -->
+      <div class="room-type-card featured reveal delay-2">
+        <div class="room-type-img">
+          <img src="/static/images/rooms/super-deluxe-1.jpg" alt="Super Deluxe Room" style="width:100%;height:100%;object-fit:cover;">
+          <span class="room-type-badge gold">11 Rooms Available</span>
+        </div>
+        <div class="room-type-body">
+          <h3>Super Deluxe Room <span class="sd-tag">✦ Premium</span></h3>
+          <p>Spacious upgraded rooms with extra comfort, more space, and premium furnishings for a special stay.</p>
+          <div class="rt-chips">
+            <span class="amenity-chip"><i class="fas fa-wifi"></i> WiFi</span>
+            <span class="amenity-chip"><i class="fas fa-snowflake"></i> AC</span>
+            <span class="amenity-chip"><i class="fas fa-tv"></i> TV</span>
+            <span class="amenity-chip"><i class="fas fa-temperature-low"></i> Fridge</span>
+          </div>
+          <div class="rt-price-row">
+            <div>
+              <span class="rt-price-label">From</span>
+              <span class="rt-price">₹{{ "{:,.0f}".format(today_price_sd) }}<small>/night</small></span>
+            </div>
+            <a href="{{ url_for('search') }}?room_type=Super Deluxe" class="btn btn-primary">View Rooms</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="reveal" style="text-align:center;margin-top:2rem;">
+      <a href="{{ url_for('search') }}" class="btn btn-outline">View All Rooms &amp; Availability</a>
+    </div>
+  </div>
+</section>
+
+<!-- Amenities -->
+<section class="amenities-section" id="amenities">
+  <div class="container">
+    <div class="section-header reveal"><span class="eyebrow">✦ Facilities</span><h2>Everything You <em>Need</em></h2></div>
+    <div class="amenities-grid-lg">
+      <div class="amenity-card reveal delay-1"><div class="amenity-icon"><i class="fas fa-wifi"></i></div><h4>Free WiFi</h4><p>High-speed internet throughout, complimentary for all guests</p></div>
+      <div class="amenity-card reveal delay-2"><div class="amenity-icon"><i class="fas fa-snowflake"></i></div><h4>Air Conditioning</h4><p>Individual climate control in every room</p></div>
+      <div class="amenity-card reveal delay-3"><div class="amenity-icon"><i class="fas fa-bolt"></i></div><h4>24/7 Electricity</h4><p>Uninterrupted power supply guaranteed</p></div>
+      <div class="amenity-card reveal delay-4"><div class="amenity-icon"><i class="fas fa-cookie-bite"></i></div><h4>Welcome Snacks</h4><p>Complimentary snacks, tea &amp; coffee in every room</p></div>
+      <div class="amenity-card reveal delay-1"><div class="amenity-icon"><i class="fas fa-glass-martini-alt"></i></div><h4>Skybar</h4><p>Craft cocktails, mocktails &amp; spirits with a view</p></div>
+      <div class="amenity-card reveal delay-2"><div class="amenity-icon"><i class="fas fa-utensils"></i></div><h4>Pure Veg Kitchen</h4><p>Authentic Rajasthani vegetarian cuisine</p></div>
+      <div class="amenity-card reveal delay-3"><div class="amenity-icon"><i class="fas fa-bath"></i></div><h4>Premium Washroom</h4><p>Full toiletries &amp; accessories in every room</p></div>
+      <div class="amenity-card reveal delay-4"><div class="amenity-icon"><i class="fas fa-paw"></i></div><h4>Pets Welcome</h4><p>Your furry friends are always welcome at JHD</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Policies -->
+<section style="padding:3rem 0 5rem;background:var(--off-white);">
+  <div class="container">
+    <div class="section-header reveal"><span class="eyebrow">✦ Hotel Policies</span><h2>Good to <em>Know</em></h2></div>
+    <div class="policies-banner reveal">
+      <div class="policies-grid">
+        <div class="policy-item"><div class="policy-icon"><i class="fas fa-sign-in-alt"></i></div><h4>Check-in</h4><p>From 12:00 PM</p></div>
+        <div class="policy-item"><div class="policy-icon"><i class="fas fa-sign-out-alt"></i></div><h4>Check-out</h4><p>By 11:00 AM</p></div>
+        <div class="policy-item"><div class="policy-icon"><i class="fas fa-ban"></i></div><h4>Cancellation</h4><p>No cancellations</p></div>
+        <div class="policy-item"><div class="policy-icon"><i class="fas fa-rupee-sign"></i></div><h4>Refund</h4><p>Non-refundable</p></div>
+        <div class="policy-item"><div class="policy-icon"><i class="fas fa-paw"></i></div><h4>Pets</h4><p>Pets are welcome</p></div>
+        <div class="policy-item"><div class="policy-icon"><i class="fas fa-leaf"></i></div><h4>Kitchen</h4><p>100% Pure vegetarian</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Social -->
+<div class="social-banner reveal">
+  <div class="container">
+    <h3>Follow Our <em style="color:var(--rose-deep)">Journey</em></h3>
+    <p>Stay updated with the latest from JHD Hotel &amp; Bar</p>
+    <div class="social-icons-row">
+      <a href="https://www.instagram.com/jhd___udaipur?igsh=anExbG94ZWFsNGJy" class="social-icon-big insta" target="_blank"><i class="fab fa-instagram"></i> @jhd___udaipur</a>
+      <a href="#" class="social-icon-big fb" target="_blank"><i class="fab fa-facebook-f"></i> JHD Hotel &amp; Bar</a>
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<section style="padding:5rem 0;" id="location">
+  <div class="container">
+    <div class="section-header reveal"><span class="eyebrow">✦ Find Us</span><h2>Our <em>Location</em></h2><p>1, Mahadev Enclave, 100 Main Road, New Bhopalpura, Opp. Nand Bhavan, Udaipur – 313001</p></div>
+    <div class="map-embed reveal">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3628.5!2d73.6925!3d24.5954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3967e5634811ddcf%3A0x7e757b3564e3c93b!2sNew%20Bhopalpura%2C%20Udaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1700000000000" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <span class="eyebrow" style="display:block;margin-bottom:1rem;">✦ Reserve Your Stay</span>
+    <h2>Ready to Book Your <em style="color:var(--rose-deep)">Stay?</em></h2>
+    <p>Book directly for the best rates. Instant confirmation via WhatsApp.</p>
+    <div class="cta-actions">
+      <div class="pulse-wrap"><a href="{{ url_for('search') }}" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Book a Room</a></div>
+      <a href="https://wa.me/918619882284?text=Hi, I'd like to book a room at JHD Hotel." class="btn btn-white" target="_blank"><i class="fab fa-whatsapp" style="color:#25D366"></i> +91 8619882284</a>
+      <a href="{{ url_for('reviews_page') }}" class="btn btn-outline"><i class="fas fa-star"></i> Reviews</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

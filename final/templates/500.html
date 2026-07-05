@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}500 — JHD Hotel{% endblock %}
+{% block content %}
+<div style="min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:4rem 2rem;">
+  <div><div style="font-size:6rem;font-weight:700;color:var(--rose-deep);line-height:1;">500</div>
+  <h2 style="font-family:var(--font-display);font-size:2rem;font-weight:300;margin:.75rem 0;">Server Error</h2>
+  <p style="color:var(--text-soft);margin-bottom:2rem;">Something went wrong on our end. Please try again.</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary"><i class="fas fa-home"></i> Back to Home</a></div>
+</div>{% endblock %}
