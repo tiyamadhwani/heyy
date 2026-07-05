@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Book Your Room — JHD Hotel{% endblock %}
+{% block extra_css %}
+<style>
+.booking-page-grid{display:grid;grid-template-columns:1fr 320px;gap:2rem;align-items:start;}
+.booking-form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;box-shadow:var(--shadow-sm);}
+.booking-summary-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);position:sticky;top:88px;}
+.bf-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:860px){
+  .booking-page-grid{grid-template-columns:1fr;}
+  .booking-summary-card{position:static;}
+}
+@media(max-width:560px){
+  .bf-grid{grid-template-columns:1fr;}
+  .booking-form-card{padding:1.25rem;}
+}
+</style>
+{% endblock %}
+{% block content %}
+<div style="background:var(--off-white);min-height:100vh;padding:3rem 0 5rem;">
+<div class="container" style="max-width:900px;">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <span style="font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--rose-deep);display:block;margin-bottom:.5rem;">✦ Booking Form</span>
+    <h1 style="font-family:var(--font-display);font-size:clamp(1.8rem,5vw,2.5rem);font-weight:300;">Book Your <em style="color:var(--rose-deep)">{{ room.room_type }} Room</em></h1>
+  </div>
+  <div class="booking-page-grid">
+    <div class="booking-form-card">
+      <form method="POST" id="bookingForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:1.25rem;color:var(--rose-deep);">Guest Details</h3>
+        <div class="bf-grid">
+          <div class="form-group"><label>First Name *</label><input type="text" name="first_name" required placeholder="Rahul"></div>
+          <div class="form-group"><label>Last Name *</label><input type="text" name="last_name" required placeholder="Sharma"></div>
+          <div class="form-group"><label>Email *</label><input type="email" name="email" required placeholder="rahul@example.com"></div>
+          <div class="form-group"><label>Phone *</label><input type="tel" name="phone" required placeholder="+91 9876543210"></div>
+          <div class="form-group"><label>Nationality</label><input type="text" name="nationality" placeholder="Indian"></div>
+          <div class="form-group"><label>ID Type</label>
+            <select name="id_type"><option>Aadhar</option><option>Passport</option><option>Driving License</option></select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>ID Number</label><input type="text" name="id_number" placeholder="XXXX-XXXX-XXXX"></div>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:1.3rem;margin:1.5rem 0 1.25rem;color:var(--rose-deep);">Stay Details</h3>
+        <div class="bf-grid">
+          <div class="form-group"><label>Check-in *</label><input type="date" name="check_in" id="ciInput" value="{{ check_in }}" required></div>
+          <div class="form-group"><label>Check-out *</label><input type="date" name="check_out" id="coInput" value="{{ check_out }}" required></div>
+          <div class="form-group"><label>Adults *</label>
+            <select name="num_adults">
+              {% for i in range(1,5) %}<option value="{{ i }}" {% if adults==i|string %}selected{% endif %}>{{ i }} Adult{{ 's' if i>1 }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group"><label>Children</label>
+            <select name="num_children">
+              {% for i in range(0,4) %}<option value="{{ i }}" {% if children==i|string %}selected{% endif %}>{{ i }} Child{{ 'ren' if i!=1 else '' }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--text-mid);"><input type="checkbox" name="extra_bed" style="width:auto;"> Request Extra Bed</label>
+          </div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Special Requests</label>
+            <textarea name="special_requests" rows="3" placeholder="Early check-in, decoration, dietary needs..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;margin-top:.5rem;">
+          <i class="fas fa-arrow-right"></i> Proceed to Payment
+        </button>
+      </form>
+    </div>
+    <div class="booking-summary-card">
+      <div style="background:linear-gradient(135deg,var(--rose),var(--lavender));padding:1.5rem;">
+        <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:400;">Room Summary</h3>
+      </div>
+      <div style="padding:1.5rem;">
+        <div style="font-family:var(--font-display);font-size:1.4rem;color:var(--rose-deep);text-align:center;margin-bottom:.25rem;">{{ room.room_type }} Room {{ room.room_number }}</div>
+        <div style="text-align:center;margin-bottom:1rem;">
+          <span style="display:inline-block;padding:3px 12px;background:{{ 'var(--jasmine)' if room.room_type=='Super Deluxe' else 'var(--rose)' }};color:{{ 'var(--gold-dark)' if room.room_type=='Super Deluxe' else 'var(--rose-deep)' }};border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.04em;">{{ room.room_type }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.88rem;padding:.4rem 0;border-bottom:1px solid var(--border-soft);">
+          <span style="color:var(--text-soft);">Tonight's Rate</span>
+          <strong id="liveRate">₹{{ "{:,.0f}".format(live_price) }}/night</strong>
+        </div>
+        <div style="margin-top:1rem;font-size:.8rem;color:var(--text-muted);">Price is calculated automatically based on your check-in date and room type. 12% GST added at checkout. GSTIN: {{ hotel_gst }}</div>
+        <div style="margin-top:1rem;padding:.75rem;background:var(--rose);border-radius:var(--radius-sm);font-size:.8rem;color:var(--rose-deep);">
+          <i class="fas fa-info-circle"></i> No cancellations. Non-refundable.
+        </div>
+        <a href="https://wa.me/918619882284" class="btn btn-soft" style="width:100%;justify-content:center;margin-top:1rem;" target="_blank">
+          <i class="fab fa-whatsapp"></i> Book via WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const ci=document.getElementById('ciInput');
+if(ci){
+  ci.addEventListener('change', async () => {
+    if(!ci.value) return;
+    try{
+      const res=await fetch(`/api/price-for-date?date=${ci.value}&room_type={{ room.room_type|urlencode }}`);
+      const data=await res.json();
+      document.getElementById('liveRate').textContent='₹'+data.price.toLocaleString('en-IN')+'/night';
+    }catch(e){}
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}My Account — JHD Hotel{% endblock %}
+{% block content %}
+<div style="background:var(--off-white);min-height:100vh;padding:3rem 0 5rem;">
+<div class="container">
+  <div style="margin-bottom:2rem;">
+    <span style="font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--rose-deep);display:block;margin-bottom:.5rem;">✦ My Account</span>
+    <h1 style="font-family:var(--font-display);font-size:2.5rem;font-weight:300;">Welcome, <em style="color:var(--rose-deep)">{{ guest.first_name }}</em></h1>
+  </div>
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start;">
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;box-shadow:var(--shadow-sm);position:sticky;top:88px;">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="width:64px;height:64px;background:var(--rose);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;font-family:var(--font-display);font-size:1.8rem;color:var(--rose-deep);">{{ guest.first_name[0] }}</div>
+        <div style="font-family:var(--font-display);font-size:1.2rem;">{{ guest.first_name }} {{ guest.last_name }}</div>
+        <div style="font-size:.82rem;color:var(--text-muted);">{{ guest.email }}</div>
+      </div>
+      <div style="font-size:.82rem;color:var(--text-soft);border-top:1px solid var(--border);padding-top:1rem;">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;"><i class="fas fa-phone" style="color:var(--rose-deep);width:16px;"></i> {{ guest.phone or 'Not set' }}</div>
+        <div style="display:flex;align-items:center;gap:.5rem;"><i class="fas fa-calendar" style="color:var(--rose-deep);width:16px;"></i> Member since {{ guest.created_at.strftime('%b %Y') }}</div>
+      </div>
+      <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.5rem;">
+        <a href="{{ url_for('search') }}" class="btn btn-primary" style="justify-content:center;"><i class="fas fa-bed"></i> Book a Room</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-soft" style="justify-content:center;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+    </div>
+    <div>
+      <h2 style="font-family:var(--font-display);font-size:1.6rem;font-weight:300;margin-bottom:1.5rem;">My <em style="color:var(--rose-deep)">Bookings</em></h2>
+      {% if bookings %}
+        {% for b in bookings %}
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.5rem;margin-bottom:1rem;box-shadow:var(--shadow-sm);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;">
+            <div>
+              <div style="font-family:var(--font-display);font-size:1.3rem;color:var(--text-dark);">🌸 {{ b.room.room_type }} Room {{ b.room.room_number }}</div>
+              <div style="font-size:.78rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;">Ref: {{ b.booking_reference }}</div>
+            </div>
+            <span style="padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:500;
+              background:{% if b.status.value=='confirmed' %}#e8f5e9{% elif b.status.value=='pending' %}#fff3e0{% else %}#fce4ec{% endif %};
+              color:{% if b.status.value=='confirmed' %}#2e7d32{% elif b.status.value=='pending' %}#e65100{% else %}#c62828{% endif %};">
+              {{ b.status.value|title }}
+            </span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-top:1rem;font-size:.87rem;color:var(--text-soft);">
+            <div><strong style="color:var(--text-dark);display:block;">Check-in</strong>{{ b.check_in_date.strftime('%d %b %Y') }}</div>
+            <div><strong style="color:var(--text-dark);display:block;">Check-out</strong>{{ b.check_out_date.strftime('%d %b %Y') }}</div>
+            <div><strong style="color:var(--text-dark);display:block;">Nights</strong>{{ b.num_nights }}</div>
+            <div><strong style="color:var(--text-dark);display:block;">Guests</strong>{{ b.num_adults }}A {% if b.num_children %}+ {{ b.num_children }}C{% endif %}</div>
+            <div><strong style="color:var(--text-dark);display:block;">Total</strong>₹{{ "%.0f"|format(b.total_amount) }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center;padding:4rem;background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--border);">
+          <div style="font-size:3rem;margin-bottom:1rem;">🌸</div>
+          <h3 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:.5rem;">No bookings yet</h3>
+          <p style="color:var(--text-soft);margin-bottom:1.5rem;">Start planning your stay today</p>
+          <a href="{{ url_for('search') }}" class="btn btn-primary">Browse Rooms</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
