@@ -516,6 +516,31 @@ def health_check():
         db_ok = False
     return {'status': 'ok', 'db': db_ok}, 200
 
+@app.route('/debug')
+def debug_info():
+    """TEMPORARY — shows what is crashing. Remove after fixing."""
+    import sys, os
+    info = {
+        'python': sys.version,
+        'flask_env': os.environ.get('FLASK_ENV', 'NOT SET'),
+        'secret_key_set': bool(os.environ.get('SECRET_KEY')),
+        'database_url': os.environ.get('DATABASE_URL', 'NOT SET (using SQLite)')[:60],
+        'db_uri': app.config.get('SQLALCHEMY_DATABASE_URI','?')[:60],
+        'routes': [str(r) for r in app.url_map.iter_rules()],
+    }
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        info['db_connection'] = 'OK'
+    except Exception as e:
+        info['db_connection'] = f'FAILED: {str(e)[:200]}'
+    try:
+        from models import Hotel
+        h = Hotel.query.first()
+        info['hotel_in_db'] = str(h)
+    except Exception as e:
+        info['hotel_query'] = f'FAILED: {str(e)[:200]}'
+    return info, 200
+
 # ─── Context Processor ───────────────────────────────────────
 @app.context_processor
 def inject_globals():
