@@ -556,6 +556,10 @@ def inject_globals():
 try:
     with app.app_context():
         db.create_all()
+        from models import Hotel as _Hotel
+        if not _Hotel.query.first():
+            import seed_data as _sd
+            _sd.seed(app=app, db=db)
 except Exception:
     pass
 

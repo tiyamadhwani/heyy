@@ -1,10 +1,5 @@
 import os, sys
-sys.path.insert(0, os.path.dirname(__file__))
-from dotenv import load_dotenv
-load_dotenv()
-
-from app import app, db
-from models import Hotel, Room, Amenity
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 HOTEL = dict(
     name='JHD Hotel & Bar', city='Udaipur', state='Rajasthan',
@@ -33,7 +28,15 @@ SUPER_DELUXE_DESC = (
     'Extra bed available on request.'
 )
 
-def seed():
+def seed(app=None, db=None):
+    if app is None:
+        from dotenv import load_dotenv
+        load_dotenv()
+        from app import app as _app, db as _db
+        app, db = _app, _db
+
+    from models import Hotel, Room, Amenity
+
     with app.app_context():
         db.create_all()
         if Hotel.query.first():
@@ -46,32 +49,26 @@ def seed():
         for name in AMENITIES:
             db.session.add(Amenity(hotel_id=h.id, name=name, icon='fas fa-check'))
 
-        # 22 Normal Rooms, numbered 101–122
         for i in range(22):
-            room_no = str(101 + i)
             db.session.add(Room(
-                hotel_id=h.id, room_number=room_no,
+                hotel_id=h.id, room_number=str(101+i),
                 room_name='Normal Room', room_type='Normal',
-                capacity=2,
-                description=NORMAL_DESC,
+                capacity=2, description=NORMAL_DESC,
                 has_wifi=True, has_ac=True, has_tv=True, has_fridge=True,
                 has_kettle=True, has_snacks=True, has_extra_bed=True,
             ))
 
-        # 11 Super Deluxe Rooms, numbered 201–211
         for i in range(11):
-            room_no = str(201 + i)
             db.session.add(Room(
-                hotel_id=h.id, room_number=room_no,
+                hotel_id=h.id, room_number=str(201+i),
                 room_name='Super Deluxe Room', room_type='Super Deluxe',
-                capacity=3,
-                description=SUPER_DELUXE_DESC,
+                capacity=3, description=SUPER_DELUXE_DESC,
                 has_wifi=True, has_ac=True, has_tv=True, has_fridge=True,
                 has_kettle=True, has_snacks=True, has_extra_bed=True,
             ))
 
         db.session.commit()
-        print(f'✓ Created JHD Hotel with 22 Normal + 11 Super Deluxe rooms and {len(AMENITIES)} amenities')
+        print('✓ Created JHD Hotel with 22 Normal + 11 Super Deluxe rooms')
 
 if __name__ == '__main__':
     seed()
